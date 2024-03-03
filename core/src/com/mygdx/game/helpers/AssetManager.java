@@ -12,34 +12,40 @@ public class AssetManager {
     // Nau i fons
     //public static TextureRegion catheroStand, catheroRight, catheroLeft, background;
 
-    public static TextureRegion catheroStand;
-    public static Texture background;
+    public static Texture background, backgroundMenu;
 
-    public static TextureRegion backgroundRegion;
+    public static TextureRegion backgroundRegion, backgroundMenuRegion;
 
 
     // Asteroide
-    public static TextureRegion[] catheroRight;
-    public static Animation catheroRightAnim;
+    public static TextureRegion[] catheroRight,catheroStand;
+    public static Animation catheroRightAnim,catheroStandAnim;
 
-    // Explosió
-    public static TextureRegion[] explosion;
-    public static Animation explosionAnim;
     public static void load() {
+        background = new Texture("Background.png");
+        background.setFilter(Texture.TextureFilter.Nearest,Texture.TextureFilter.Nearest);
+        backgroundRegion = new TextureRegion(background,3,3,153,114);
+        backgroundMenuRegion = new TextureRegion(background,316,122,151,113);
+
+
         // Carreguem les textures i li apliquem el mètode d'escalat 'nearest'
-        sheet = new Texture(Gdx.files.internal("spritesheet.png"));
+        sheet = new Texture("spritesheet.png");
         sheet.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        /*
-        // Sprites de la nau
-        catheroStand = new TextureRegion(sheet, 0, 0, 36, 15);
-        catheroStand.flip(false, true);
 
-        catheroRight = new TextureRegion(sheet, 36, 0, 36, 15);
-        catheroRight.flip(false, true);
 
-        catheroLeft = new TextureRegion(sheet, 72, 0, 36, 15);
-        catheroLeft .flip(false, true);*/
+        //Cathero normal
+        catheroStand = new TextureRegion[3];
+
+        for (int i = 0; i < catheroStand.length; i++) {
+            int frameX = 7 + i * 29;
+            int frameY = 16;
+            int frameWidth = 29;
+            int frameHeight = 29;
+            catheroStand[i] = new TextureRegion(sheet, frameX, frameY, frameWidth, frameHeight);
+        }
+        //Que se ejecute la animacion
+        catheroStandAnim = new Animation(0.5f, catheroStand);
 
         //Animacion del cathero caminando
         catheroRight = new TextureRegion[6];
@@ -50,11 +56,6 @@ public class AssetManager {
         }
         //Que se ejecute la animacion
         catheroRightAnim = new Animation(0.05f, catheroRight);
-
-
-        background = new Texture("Background.png");
-        background.setFilter(Texture.TextureFilter.Nearest,Texture.TextureFilter.Nearest);
-        backgroundRegion = new TextureRegion(background,3,3,153,114);
 
     }
 
