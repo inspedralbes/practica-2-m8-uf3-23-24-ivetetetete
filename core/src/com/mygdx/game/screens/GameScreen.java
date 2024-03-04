@@ -1,7 +1,9 @@
 package com.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -10,10 +12,12 @@ import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.mygdx.game.FightGame;
 import com.mygdx.game.helpers.AssetManager;
+import com.mygdx.game.helpers.InputHandler;
 import com.mygdx.game.objects.CatHero;
 import com.mygdx.game.utils.Settings;
 
@@ -30,11 +34,18 @@ public class GameScreen implements Screen {
     private FightGame game;
 
     public TextureRegion background;
-public float backgroundX = 0;
-public float backgroundSpeed = 10;
+    public float backgroundX = 0;
+    public float backgroundSpeed = 10;
+    private InputHandler inputHandler;
+
+    private Music musicBattle;
+
 
     public GameScreen(final FightGame game) {
         this.game = game;
+
+        //Musica
+        musicBattle = Gdx.audio.newMusic(Gdx.files.internal("Battle.mp3"));
 
         // Creem el ShapeRenderer
         shapeRenderer = new ShapeRenderer();
@@ -54,59 +65,29 @@ public float backgroundSpeed = 10;
 
         background = new TextureRegion(AssetManager.backgroundRegion);
         // Creem la nau i la resta d'objectes
-        cathero = new CatHero(Settings.CATHERO_STARTX,Settings.CATHERO_STARTY,Settings.CATHERO_WIDTH, Settings.CATHERO_HEIGHT, AssetManager.catheroRightAnim);
+        cathero = new CatHero(Settings.CATHERO_STARTX, Settings.CATHERO_STARTY, Settings.CATHERO_WIDTH, Settings.CATHERO_HEIGHT, AssetManager.catheroStandAnim);
+        stage.addActor(cathero); // Add CatHero to the stage
+        cathero.goStraight(); // Set the default state to standing still
 
-        // Afegim els actors a l'stage
-        stage.addActor(cathero);
+        inputHandler = new InputHandler(cathero);
+        Gdx.input.setInputProcessor(inputHandler);
 
     }
 
     private void drawElements(){
 
-        /* 1 */
-// Pintem el fons de negre per evitar el "flickering"
-        Gdx.gl20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        /* 2 */
+        /* 2
 // Recollim les propietats del Batch de l'Stage
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 // Inicialitzem el shaperenderer
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        /* 3 */
 // Definim el color (verd)
         shapeRenderer.setColor(new Color(0, 1, 0, 1));
 // Pintem la nau
         shapeRenderer.rect(cathero.getX(), cathero.getY(), cathero.getWidth(), cathero.getHeight());
 
-        /* 4 */
-        /*
-        // Recollim tots els Asteroid / enemics
-        ArrayList<Asteroid> asteroids = scrollHandler.getAsteroids();
-        Asteroid asteroid;
-
-        for (int i = 0; i < asteroids.size(); i++) {
-
-            asteroid = asteroids.get(i);
-            switch (i) {
-                case 0:
-                    shapeRenderer.setColor(1,0,0,1);
-                    break;
-                case 1:
-                    shapeRenderer.setColor(0,0,1,1);
-                    break;
-                case 2:
-                    shapeRenderer.setColor(1,1,0,1);
-                    break;
-                default:
-                    shapeRenderer.setColor(1,1,1,1);
-                    break;
-            }
-            shapeRenderer.circle(asteroid.getX() + asteroid.getWidth()/2, asteroid.getY() + asteroid.getWidth()/2, asteroid.getWidth()/2);
-        }*/
-        /* 5 */
-        shapeRenderer.end();
+        shapeRenderer.end();*/
     }
 
     @Override
@@ -119,20 +100,25 @@ public float backgroundSpeed = 10;
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
-       backgroundX-=backgroundSpeed*delta;
+
+        backgroundX-=backgroundSpeed*delta;
 
         if(backgroundX<(Settings.GAME_WIDTH - (Settings.GAME_WIDTH*2))){
             backgroundX=0;
         }
-        game.batch.draw(background,backgroundX,0,Settings.GAME_WIDTH,Settings.GAME_HEIGHT);
-        game.batch.draw(background,backgroundX+Settings.GAME_WIDTH,0,Settings.GAME_WIDTH,Settings.GAME_HEIGHT);
+       game.batch.draw(background,backgroundX,0,Settings.GAME_WIDTH,Settings.GAME_HEIGHT);
+       game.batch.draw(background,backgroundX+Settings.GAME_WIDTH,0,Settings.GAME_WIDTH,Settings.GAME_HEIGHT);
 
+        game.batch.end();
+
+       // music.play();
+        musicBattle.play();
 
         // Dibuixem i actualitzem tots els actors de l'stage
         stage.draw();
         stage.act(delta);
 
-        game.batch.end();
+
     }
 
     public CatHero getCatHero() {

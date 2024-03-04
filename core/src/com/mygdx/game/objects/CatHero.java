@@ -22,6 +22,9 @@ public class CatHero extends Actor {
     private int direction;
     private float runTime;
 
+    private float attackCooldown = 1.0f; // Set the cooldown time for attacks (in seconds)
+    private float timeSinceLastAttack = 0.0f;
+
 
     private com.badlogic.gdx.graphics.g2d.Animation animation;
 
@@ -52,7 +55,7 @@ public class CatHero extends Actor {
         this.height = height;
         position = new Vector2(x, y);
 
-        // Inicialitzem l'Spacecraft a l'estat normal
+        // Inicialitzem cat hero a l'estat normal
         direction = CATHERO_STRAIGHT;
         this.animation = animation;
         stateTime = 0f;
@@ -62,7 +65,7 @@ public class CatHero extends Actor {
     public void act(float delta) {
         super.act(delta);
 
-        // Movem l'Spacecraft depenent de la direcció controlant que no surti de la pantalla
+        // Movem cat depenent de la direcció controlant que no surti de la pantalla
         switch (direction) {
             case CATHERO_RIGHT:
                 if (this.position.x - Settings.CATHERO_VELOCITY * delta >= 0) {
@@ -70,7 +73,7 @@ public class CatHero extends Actor {
                 }
                 break;
             case CATHERO_LEFT:
-                if (this.position.x + height + Settings.CATHERO_VELOCITY * delta <= Settings.GAME_HEIGHT) {
+                if (this.position.x + width + Settings.CATHERO_VELOCITY * delta <= Settings.GAME_WIDTH) {
                     this.position.x -= Settings.CATHERO_VELOCITY * delta;
                 }
                 break;
@@ -79,16 +82,19 @@ public class CatHero extends Actor {
         }
 
         stateTime += delta;
+        timeSinceLastAttack += delta;
+
+
 
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha){
         super.draw(batch,parentAlpha);
-        TextureRegion currentFrame = (TextureRegion) animation.getKeyFrame(stateTime, true);
-        //batch.draw(AssetManager.catheroRightAnim.getKeyFrame(runTime), position.x, position.y, width, height);
+       // batch.draw(getSpacecraftTexture(), position.x, position.y, width, height);
 
-       // batch.draw(currentFrame, position.x,position.y,width,height);
+        TextureRegion currentFrame = getCatheroTexture().getKeyFrame(stateTime, true);
+        batch.draw(currentFrame, position.x, position.y, width, height);
     }
 
 
@@ -107,9 +113,33 @@ public class CatHero extends Actor {
         direction = CATHERO_STRAIGHT;
     }
 
+    public void attack() {
+        // Check if enough time has passed since the last attack
+        if (timeSinceLastAttack >= attackCooldown) {
+            // Implement the attack logic here
+            // For example, change animations, deal damage, etc.
+
+            // Reset the timeSinceLastAttack
+            timeSinceLastAttack = 0.0f;
+        }
+    }
+
+
     public float getRunTime() {
         return runTime;
     }
+
+    public Animation<TextureRegion> getCatheroTexture() {
+        switch (direction) {
+            case CATHERO_LEFT:
+                return AssetManager.catheroLeftAnim;
+            case CATHERO_RIGHT:
+                return AssetManager.catheroRightAnim;
+            default:
+                return AssetManager.catheroStandAnim;
+        }
+    }
+
 
 
 }
