@@ -3,6 +3,7 @@ package com.mygdx.game.objects;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.helpers.AssetManager;
@@ -10,9 +11,9 @@ import com.mygdx.game.utils.Settings;
 
 public class CatHero extends Actor {
     //Posiciones
-    public static final int CATHERO_STRAIGHT = 0;
-    public static final int CATHERO_RIGHT = 5;
-    public static final int CATHERO_LEFT= -5;
+    public static final int CATHERO_RUN = 0;
+
+    public static final int CATHERO_ATTACK = 7;
     private float stateTime;
 
 
@@ -25,6 +26,7 @@ public class CatHero extends Actor {
     private float attackCooldown = 1.0f; // Set the cooldown time for attacks (in seconds)
     private float timeSinceLastAttack = 0.0f;
 
+    public Rectangle collisionRect;
 
     private com.badlogic.gdx.graphics.g2d.Animation animation;
 
@@ -55,11 +57,16 @@ public class CatHero extends Actor {
         this.height = height;
         position = new Vector2(x, y);
 
-        // Inicialitzem cat hero a l'estat normal
-        direction = CATHERO_STRAIGHT;
+        //Cathero corriendo
+        direction = CATHERO_RUN;
         this.animation = animation;
         stateTime = 0f;
 
+        collisionRect = new Rectangle(x, y, width, height);
+    }
+
+    public Rectangle getBounds(){
+        return this.collisionRect;
     }
 
     public void act(float delta) {
@@ -67,23 +74,19 @@ public class CatHero extends Actor {
 
         // Movem cat depenent de la direcció controlant que no surti de la pantalla
         switch (direction) {
-            case CATHERO_RIGHT:
+            case CATHERO_RUN:
                 if (this.position.x - Settings.CATHERO_VELOCITY * delta >= 0) {
                     this.position.x += Settings.CATHERO_VELOCITY * delta;
                 }
                 break;
-            case CATHERO_LEFT:
-                if (this.position.x + width + Settings.CATHERO_VELOCITY * delta <= Settings.GAME_WIDTH) {
-                    this.position.x -= Settings.CATHERO_VELOCITY * delta;
-                }
-                break;
-            case CATHERO_STRAIGHT:
+            case CATHERO_ATTACK:
                 break;
         }
 
         stateTime += delta;
         timeSinceLastAttack += delta;
 
+        collisionRect.set(position.x, position.y + 3, width, 10);
 
 
     }
@@ -98,29 +101,19 @@ public class CatHero extends Actor {
     }
 
 
-    // Canviem la direcció de l'Spacecraft: Puja
-    public void goLeft() {
-        direction = CATHERO_LEFT;
-    }
-
-    // Canviem la direcció de l'Spacecraft: Baixa
+    public void goLeft() {}
+//Cathero corre
     public void goRight() {
-        direction =CATHERO_RIGHT;
+        direction =CATHERO_RUN;
     }
 
-    // Posem l'Spacecraft al seu estat original
-    public void goStraight() {
-        direction = CATHERO_STRAIGHT;
-    }
+    //Ataca
+    public void goAttack() {
+        direction = CATHERO_ATTACK;
 
-    public void attack() {
-        // Check if enough time has passed since the last attack
         if (timeSinceLastAttack >= attackCooldown) {
-            // Implement the attack logic here
-            // For example, change animations, deal damage, etc.
-
-            // Reset the timeSinceLastAttack
             timeSinceLastAttack = 0.0f;
+            System.out.println("Cathero ataca!");
         }
     }
 
@@ -129,14 +122,16 @@ public class CatHero extends Actor {
         return runTime;
     }
 
+    public Rectangle getCollisionRect() {
+        return collisionRect;
+    }
+
     public Animation<TextureRegion> getCatheroTexture() {
         switch (direction) {
-            case CATHERO_LEFT:
-                return AssetManager.catheroLeftAnim;
-            case CATHERO_RIGHT:
-                return AssetManager.catheroRightAnim;
+            case CATHERO_ATTACK:
+                return AssetManager.catheroAttackAnim;
             default:
-                return AssetManager.catheroStandAnim;
+                return AssetManager.catheroRunAnim;
         }
     }
 

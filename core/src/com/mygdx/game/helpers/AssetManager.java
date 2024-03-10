@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class AssetManager {
     // Sprite Sheet
-    public static Texture sheet;
+    public static Texture sheet, sheetEnemy;
 
     public static Texture background, backgroundMenu;
 
@@ -15,8 +15,8 @@ public class AssetManager {
 
 
     // Asteroide
-    public static TextureRegion[] catheroRight,catheroStand, catheroLeft, catheroAttack;
-    public static Animation catheroRightAnim,catheroStandAnim,catheroLeftAnim,catheroAttackAnim;
+    public static TextureRegion[] catheroRun, catheroAttack, enemyRun, enemyAttack;
+    public static Animation catheroRunAnim,catheroAttackAnim, enemyRunAnim, enemyAttackAnim;
 
     public static void load() {
         background = new Texture("Background.png");
@@ -30,44 +30,18 @@ public class AssetManager {
         sheet.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
 
-        //Cathero normal
-        catheroStand = new TextureRegion[3];
-
-        for (int i = 0; i < catheroStand.length; i++) {
-            int frameX = 7 + i * 29;
-            int frameY = 16;
-            int frameWidth = 29;
-            int frameHeight = 29;
-            catheroStand[i] = new TextureRegion(sheet, frameX, frameY, frameWidth, frameHeight);
-        }
-        //Que se ejecute la animacion
-        catheroStandAnim = new Animation(0.5f, catheroStand);
-
-        //Animacion del cathero caminando a la derecha
-        catheroRight = new TextureRegion[6];
-        for (int i = 0; i < catheroRight.length; i++) {
+        //Animacion corriendo
+        catheroRun = new TextureRegion[6];
+        for (int i = 0; i < catheroRun.length; i++) {
             int frameX = 103 + i * 28;
             int frameY = 16;
             int frameWidth = 28;
             int frameHeight = 29;
-            catheroRight[i] = new TextureRegion(sheet, frameX, frameY, frameWidth, frameHeight);
+            catheroRun[i] = new TextureRegion(sheet, frameX, frameY, frameWidth, frameHeight);
             //catheroRight[i].flip(false, true);
         }
         //Que se ejecute la animacion
-        catheroRightAnim = new Animation(0.05f, catheroRight);
-
-        //Animacion del cathero caminando a la izquierda
-        catheroLeft = new TextureRegion[6];
-        for (int i = 0; i < catheroLeft.length; i++) {
-            int frameX = 103 + i * 28;
-            int frameY = 16;
-            int frameWidth = 28;
-            int frameHeight = 29;
-            catheroLeft[i] = new TextureRegion(sheet, frameX, frameY, frameWidth, frameHeight);
-            catheroLeft[i].flip(true, false);
-        }
-        //Que se ejecute la animacion
-        catheroLeftAnim = new Animation(0.05f, catheroLeft);
+        catheroRunAnim = new Animation(0.05f, catheroRun);
 
         //Animacion del cathero ataque
         catheroAttack = new TextureRegion[8];
@@ -77,17 +51,52 @@ public class AssetManager {
             int frameWidth = 45;
             int frameHeight = 29;
             catheroAttack[i] = new TextureRegion(sheet, frameX, frameY, frameWidth, frameHeight);
-            catheroAttack[i].flip(true, false);
+            catheroAttack[i].flip(false, false);
         }
         //Que se ejecute la animacion
         catheroAttackAnim = new Animation(0.05f, catheroAttack);
 
 
+        //DEL ENEMIGO
+        sheetEnemy = new Texture("enemy-spritesheet.png");
+        sheetEnemy.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        //Enemy run
+        enemyRun = new TextureRegion[6];
+
+        for (int i = 0; i < enemyRun.length; i++) {
+            int frameX = 63 + i * 25;
+            int frameY = 16;
+            int frameWidth = 25;
+            int frameHeight = 36;
+            enemyRun[i] = new TextureRegion(sheetEnemy, frameX, frameY, frameWidth, frameHeight);
+            enemyRun[i].flip(true, false);
+
+        }
+        //Que se ejecute la animacion
+        enemyRunAnim = new Animation(0.05f, enemyRun);
+
+        //Enemy attack
+        enemyAttack = new TextureRegion[9];
+
+        for (int i = 0; i < enemyAttack.length; i++) {
+            int frameX = 7 + i * 44;
+            int frameY = 70;
+            int frameWidth = 44;
+            int frameHeight = 36;
+            enemyAttack[i] = new TextureRegion(sheetEnemy, frameX, frameY, frameWidth, frameHeight);
+            enemyAttack[i].flip(true, false);
+
+        }
+        //Que se ejecute la animacion
+        enemyAttackAnim = new Animation(0.05f, enemyAttack);
 
     }
 
     public static void dispose() {
         sheet.dispose();
+        sheetEnemy.dispose();
+
         background.dispose();
     }
 }

@@ -2,7 +2,9 @@ package com.mygdx.game.helpers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.utils.Timer;
 import com.mygdx.game.objects.CatHero;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.utils.Settings;
@@ -20,22 +22,12 @@ public class InputHandler implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        switch (keycode) {
-            case Input.Keys.RIGHT:
-                cathero.goRight();
-                break;
-        }
-        return true;
+        return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        switch (keycode) {
-            case Input.Keys.RIGHT:
-                cathero.goStraight();
-                break;
-        }
-        return true;
+        return false;
     }
 
     @Override
@@ -45,21 +37,13 @@ public class InputHandler implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        float halfScreenWidth = Settings.GAME_WIDTH / 2;
-        if (screenX < halfScreenWidth) {
-            cathero.goLeft();
-        } else {
-            cathero.goRight();
-        }
-
-        cathero.attack();
-
+        cathero.goAttack();
         return true;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        cathero.goStraight();
+        cathero.goRight();
         return true;
     }
     @Override

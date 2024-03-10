@@ -13,17 +13,28 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.mygdx.game.FightGame;
 import com.mygdx.game.helpers.AssetManager;
 import com.mygdx.game.helpers.InputHandler;
 import com.mygdx.game.objects.CatHero;
+import com.mygdx.game.objects.Enemy;
 import com.mygdx.game.utils.Settings;
+
+import java.util.ArrayList;
 
 public class GameScreen implements Screen {
     private Stage stage;
     private CatHero cathero;
+    private Enemy enemy;
+    //Para spawnear enemigos
+    private float timeSinceLastEnemy = 0f;
+    private float enemySpawnInterval = 10f;
+    public ArrayList<Enemy> enemies;
+
     // Representació de figures geomètriques
     private ShapeRenderer shapeRenderer;
     // Per obtenir el batch de l'stage
@@ -65,14 +76,52 @@ public class GameScreen implements Screen {
 
         background = new TextureRegion(AssetManager.backgroundRegion);
         // Creem la nau i la resta d'objectes
-        cathero = new CatHero(Settings.CATHERO_STARTX, Settings.CATHERO_STARTY, Settings.CATHERO_WIDTH, Settings.CATHERO_HEIGHT, AssetManager.catheroStandAnim);
-        stage.addActor(cathero); // Add CatHero to the stage
-        cathero.goStraight(); // Set the default state to standing still
+        cathero = new CatHero(Settings.CATHERO_STARTX, Settings.CATHERO_STARTY, Settings.CATHERO_WIDTH, Settings.CATHERO_HEIGHT, AssetManager.catheroRunAnim);
+        enemy = new Enemy(Settings.ENEMY_STARTX, Settings.ENEMY_STARTY, Settings.ENEMY_WIDTH, Settings.ENEMY_HEIGHT, AssetManager.enemyRunAnim);
+
+        enemies = new ArrayList<Enemy>();
+
+        stage.addActor(cathero);
+        stage.addActor(enemy);
+        enemies.add(enemy);
+
+
+        cathero.goRight();
+        enemy.goRun();
 
         inputHandler = new InputHandler(cathero);
         Gdx.input.setInputProcessor(inputHandler);
 
     }
+
+    //COLISIONES
+    public boolean checkCollision() {
+        for (Actor actor : stage.getRoot().getChildren()) {
+            if (actor instanceof Enemy) {
+                final Enemy enemy = (Enemy) actor;
+                float distance = cathero.getX() - enemy.getX();
+                if (Math.abs(distance) <= 100) {
+                    System.out.println("CERCA");
+                   // enemy.setEn(AssetsManager.barrelBreakAnim);
+                    enemy.attack();
+
+                    if (enemy.getBounds().overlaps(cathero.getBounds())) {
+                        Gdx.app.log("MainScreen", "Collision detected!");
+                        //barrel.playAnimationBreak();
+                        //enemy.setBarrelAnim(AssetsManager.barrelBreakAnim);
+                        //enemy.breaks();
+                        //Gdx.app.log("MainScreen", "vidas: " + cathero.restarVida());
+
+                        return true;
+                    }
+                }
+
+
+            }
+        }
+        return false;
+    }
+
 
     private void drawElements(){
 
@@ -101,6 +150,7 @@ public class GameScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
 
+
         backgroundX-=backgroundSpeed*delta;
 
         if(backgroundX<(Settings.GAME_WIDTH - (Settings.GAME_WIDTH*2))){
@@ -109,6 +159,14 @@ public class GameScreen implements Screen {
        game.batch.draw(background,backgroundX,0,Settings.GAME_WIDTH,Settings.GAME_HEIGHT);
        game.batch.draw(background,backgroundX+Settings.GAME_WIDTH,0,Settings.GAME_WIDTH,Settings.GAME_HEIGHT);
 
+        timeSinceLastEnemy += delta;
+        if (timeSinceLastEnemy >= enemySpawnInterval) {
+            spawnEnemey();
+            timeSinceLastEnemy = 0f; // Reinicia el temporizador
+        }
+
+        stage.act(delta);
+        checkCollision();
         game.batch.end();
 
        // music.play();
@@ -116,10 +174,14 @@ public class GameScreen implements Screen {
 
         // Dibuixem i actualitzem tots els actors de l'stage
         stage.draw();
-        stage.act(delta);
 
 
     }
+    private void spawnEnemey() {
+        enemy = new Enemy(Settings.ENEMY_STARTX, Settings.ENEMY_STARTY, Settings.ENEMY_WIDTH, Settings.ENEMY_HEIGHT, AssetManager.enemyRunAnim);
+        stage.addActor(enemy);
+    }
+
 
     public CatHero getCatHero() {
         return cathero;
